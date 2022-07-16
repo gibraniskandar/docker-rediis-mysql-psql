@@ -1,0 +1,84 @@
+version: '3'
+services:
+
+  #Nginx Service
+#  webserver:
+#    image: nginx:alpine
+#    container_name: webserver
+#    restart: always
+#    tty: true
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    working_dir: /var/www/
+#    volumes:
+#      - /Users/akmal/WebApp/psp-siak:/var/www/psp-siak
+#      - /Users/akmal/WebApp/psp-webapp:/var/www/psp-webapp
+##      - ./nginx/conf.d/:/etc/nginx/conf.d/
+##    links:
+##      - redis
+#    networks:
+##      - app-network
+#      - default
+
+  # Postgres SQL
+  postgres:
+    # build:
+    #   context: .
+    #   dockerfile: ./docker/postgres.dockerfile
+    image: postgres:9.5
+    container_name: posgres_db
+    # command: echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.5/main/pg_hba.conf && echo "listen_addresses='*'" >> /etc/postgresql/9.5/main/postgresql.conf
+    environment:
+      # - POSTGRES_DB=newticmicoid
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - 5432:5432
+    volumes:
+      - /Users/gibraniskandar/GWorkspace/CONFIG/all-docker/Docker-mysql-postgre-redis/postgre_data:/var/lib/postgresql/pgdata
+      - /Users/gibraniskandar/GWorkspace/CONFIG/all-docker/Docker-mysql-postgre-redis/docker/conf/postgres:/docker-entrypoint-initdb.d/
+    networks: 
+      - default
+
+  # Mysql 
+  mysql_db:
+    image: mysql:5.7
+    container_name: mysql_db
+    volumes:
+      - /Users/gibraniskandar/GWorkspace/CONFIG/all-docker/Docker-mysql-postgre-redis/mysql_data:/var/lib/mysql
+    environment:
+      # - "MYSQL_DATABASE=ticmi"
+      - "MYSQL_USER=local"
+      - "MYSQL_PASSWORD=secret"
+      - "MYSQL_ROOT_PASSWORD=secret"
+    ports:
+        - "33061:3306"
+    networks:
+      - default
+
+  redis:
+    image: redis:4-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_data:/data
+    networks:
+      - default
+
+
+#Volumes
+volumes:
+  mysql_data:
+    driver: local
+  postgre_data:
+    driver: local
+  redis_data:
+    driver: local
+
+#Docker Networks
+networks:
+  default:
+    external:
+      name: db_network
